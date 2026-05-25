@@ -4,14 +4,12 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // Inicializamos el gestor de tareas y el escáner para leer la consola
         TaskManager gestor = new TaskManager();
         Scanner deTeclado = new Scanner(System.in);
         int opcion = 0;
 
         System.out.println("=== Bienvenido a la aplicación ToDo ===");
 
-        // Bucle del menú principal
         while (opcion != 4) {
             System.out.println("\n--- Menú de opciones ---");
             System.out.println("1. Añadir tarea");
@@ -20,19 +18,13 @@ public class Main {
             System.out.println("4. Salir");
             System.out.print("Selecciona una opción: ");
             
-            // Leemos la opción elegida por el usuario
             opcion = deTeclado.nextInt();
-            deTeclado.nextLine(); // Limpiamos el buffer del escáner
+            deTeclado.nextLine();
 
             switch (opcion) {
                 case 1:
-                    System.out.print("Introduce el título de la tarea: ");
-                    String titulo = deTeclado.nextLine();
-                    System.out.print("Introduce la descripción: ");
-                    String desc = deTeclado.nextLine();
-                    
-                    gestorAñadirTarea(gestor, titulo, desc);
-                    System.out.println("¡Tarea añadida con éxito!");
+                    // SEPARACIÓN DE MÉTODOS: Se ha movido la lógica de captura de datos a un método propio
+                    procesarAltaTarea(gestor, deTeclado);
                     break;
 
                 case 2:
@@ -41,18 +33,8 @@ public class Main {
                     break;
 
                 case 3:
-                    System.out.println("\n--- Marcar como completada ---");
-                    gestor.mostrarTareas();
-                    System.out.print("Introduce el número de la tarea a completar: ");
-                    int numTarea = deTeclado.nextInt();
-                    
-                    // Restamos 1 porque el usuario ve la lista empezando en 1, pero los arrays empiezan en 0
-                    boolean exito = gestor.marcarComoCompletada(numTarea - 1);
-                    if (exito) {
-                        System.out.println("¡Tarea marcada como completada!");
-                    } else {
-                        System.out.println("Error: El número de tarea introducido no existe.");
-                    }
+                    // SEPARACIÓN DE MÉTODOS: Se ha extraído la lógica de completado para aligerar el switch
+                    procesarCompletarTarea(gestor, deTeclado);
                     break;
 
                 case 4:
@@ -65,11 +47,34 @@ public class Main {
             }
         }
         
-        deTeclado.close(); // Cerramos el recurso del escáner al terminar
+        deTeclado.close();
     }
 
-    // Método auxiliar (Hará falta para la parte de refactorización del bloque 4)
-    private static void gestorAñadirTarea(TaskManager gestor, String titulo, String desc) {
+    // NUEVO MÉTODO SEPARADO: Gestiona de forma aislada la entrada de datos para una nueva tarea
+    private static void procesarAltaTarea(TaskManager gestor, Scanner deTeclado) {
+        System.out.print("Introduce el título de la tarea: ");
+        String titulo = deTeclado.nextLine();
+        System.out.print("Introduce la descripción: ");
+        String desc = deTeclado.nextLine();
+        
         gestor.añadirTarea(titulo, desc);
+        System.out.println("¡Tarea añadida con éxito!");
+    }
+
+    // NUEVO MÉTODO SEPARADO: Controla de forma independiente la interacción para marcar tareas como completadas
+    private static void procesarCompletarTarea(TaskManager gestor, Scanner deTeclado) {
+        System.out.println("\n--- Marcar como completada ---");
+        gestor.mostrarTareas();
+        System.out.print("Introduce el número de la tarea a completar: ");
+        
+        // CAMBIO DE NOMBRE DE VARIABLE: 'numTarea' se ha renombrado a 'indiceUsuario'
+        int indiceUsuario = deTeclado.nextInt();
+        
+        boolean exito = gestor.marcarComoCompletada(indiceUsuario - 1);
+        if (exito) {
+            System.out.println("¡Tarea marcada como completada!");
+        } else {
+            System.out.println("Error: El número de tarea introducido no existe.");
+        }
     }
 }
